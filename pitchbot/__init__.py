@@ -7,5 +7,6 @@ __author__ = "Your Name"
 __email__ = "your.email@example.com"
 
 from .main import main
+from .pdf_ingest import PDFIngest, PDFProcessor, TextProcessor
 
-__all__ = ["main"] 
+__all__ = ["main", "PDFIngest", "PDFProcessor", "TextProcessor"] 
