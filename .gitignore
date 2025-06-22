@@ -1,1 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+
+# Virtual environment
 .venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Output folder for generated files
+output/
+
+# macOS files
+.DS_Store
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
