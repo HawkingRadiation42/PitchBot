@@ -20,3 +20,5 @@ output/
 build/
 dist/
 *.egg-info/
+
+pitchbot/__pycache__/
