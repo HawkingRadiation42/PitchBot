@@ -98,7 +98,7 @@ class TextProcessor:
             logger.error(f"Summarization failed: {e}")
             return f"Summarization failed: {str(e)}"
     
-    def _image_to_base64(self, image_path: str, max_size: int = 800) -> Optional[str]:
+    def _image_to_base64(self, image_path: str, max_size: int = 600) -> Optional[str]:
         """
         Convert image to base64 format with optional resizing.
         
@@ -119,15 +119,22 @@ class TextProcessor:
                 if img.mode != 'RGB':
                     img = img.convert('RGB')
                 
-                # Resize if too large
+                # Resize if too large (reduce max_size to avoid token limits)
                 if max(img.size) > max_size:
                     img.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+                    logger.info(f"Resized image from {img.size} to fit within {max_size}x{max_size}")
                 
-                # Convert to base64
+                # Convert to base64 with compression
                 buffer = io.BytesIO()
-                img.save(buffer, format='JPEG', quality=85, optimize=True)
+                img.save(buffer, format='JPEG', quality=70, optimize=True)  # Reduced quality for smaller size
                 img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
                 
+                # Check size and warn if too large
+                size_mb = len(img_base64) / (1024 * 1024)
+                if size_mb > 1:  # If larger than 1MB
+                    logger.warning(f"Image {image_path} is {size_mb:.2f}MB, may cause API issues")
+                
+                logger.info(f"Successfully converted image {image_path} to base64 ({size_mb:.2f}MB)")
                 return f"data:image/jpeg;base64,{img_base64}"
                 
         except Exception as e:
@@ -294,7 +301,21 @@ Format your response as a structured list with clear categorization. Use bullet 
         # JSON-structured prompt
         prompt = """You are an expert business analyst. Analyze the following PDF content and extract key business insights from both text and images.
 
-For images, analyze charts, graphs, tables, UI/UX elements, or visual data. Extract any text, metrics, or data points shown.
+For images, carefully analyze and extract:
+1. Any text content visible in the images (headlines, labels, numbers, descriptions)
+2. Charts and graphs - describe the data, trends, axes, and key metrics shown
+3. UI/UX elements - describe buttons, menus, interfaces, and user interactions
+4. Visual data - tables, infographics, diagrams, and their key information
+5. Brand elements - logos, colors, design patterns, and visual identity
+6. Screenshots - describe what's being shown, features, and functionality
+
+When analyzing images, be specific about:
+- Exact text content you can read
+- Numbers, percentages, and metrics shown
+- Chart types and what they represent
+- UI elements and their purpose
+- Visual hierarchy and layout
+- Any business-relevant information displayed
 
 Return your analysis as a valid JSON object with the following structure:
 {
@@ -309,7 +330,7 @@ Return your analysis as a valid JSON object with the following structure:
 
 Focus on:
 - Product Market Fit: target market, customer needs, positioning, validation
-- Visual Content: charts, graphs, images, UI/UX, brand elements
+- Visual Content: charts, graphs, images, UI/UX, brand elements, text content from images
 - Monetization: revenue models, pricing, financial projections, funding
 - Data Analytics: KPIs, metrics, market data, user statistics
 - Competitive Landscape: competitors, advantages, market positioning
@@ -325,9 +346,11 @@ Ensure the response is valid JSON with no additional text before or after."""
             # Add text content
             if text.strip():
                 content_parts.append(f"TEXT CONTENT:\n{text}")
+                logger.info(f"Added text content ({len(text)} characters)")
             
             # Add image content as base64
             if images:
+                logger.info(f"Processing {len(images)} images...")
                 for i, image_path in enumerate(images):
                     base64_image = self._image_to_base64(image_path)
                     if base64_image:
@@ -338,9 +361,20 @@ Ensure the response is valid JSON with no additional text before or after."""
             
             # Combine all content
             full_content = "\n\n".join(content_parts)
+            logger.info(f"Total content length: {len(full_content)} characters")
             
             # Make API call
+            logger.info("Making API call to Llama...")
             response = self._call_llama_api(f"{prompt}\n\n{full_content}")
+            logger.info(f"API response received: {len(response)} characters")
+            
+            if not response.strip():
+                logger.warning("Empty response from API, falling back to text-only analysis")
+                # Fallback to text-only analysis if API returns empty
+                if text.strip():
+                    return self._fallback_text_analysis(text)
+                else:
+                    return {"General": ["No content available for analysis"]}
             
             # Try to parse JSON response
             try:
@@ -364,18 +398,102 @@ Ensure the response is valid JSON with no additional text before or after."""
                         else:
                             organized_points[category.replace('_', ' ').title()] = [str(points)]
                     
+                    logger.info(f"Successfully parsed JSON response with {len(organized_points)} categories")
                     return organized_points
                 else:
-                    logger.warning("No JSON object found in response")
-                    return {"General": [response_text]}
+                    logger.warning("No JSON object found in response, falling back to text-only analysis")
+                    if text.strip():
+                        return self._fallback_text_analysis(text)
+                    else:
+                        return {"General": [response_text]}
                     
             except json.JSONDecodeError as e:
                 logger.warning(f"Failed to parse JSON response: {e}")
-                return {"General": [response_text]}
+                logger.warning(f"Response was: {response_text[:200]}...")
+                if text.strip():
+                    return self._fallback_text_analysis(text)
+                else:
+                    return {"General": [response_text]}
             
         except Exception as e:
             logger.error(f"JSON key point extraction failed: {e}")
-            return {"Error": [f"Key point extraction failed: {str(e)}"]}
+            if text.strip():
+                return self._fallback_text_analysis(text)
+            else:
+                return {"Error": [f"Key point extraction failed: {str(e)}"]}
+    
+    def _fallback_text_analysis(self, text: str) -> Dict[str, List[str]]:
+        """
+        Fallback method for text-only analysis when image processing fails.
+        
+        Args:
+            text: Text to analyze
+            
+        Returns:
+            Dictionary with categories as keys and lists of key points as values
+        """
+        logger.info("Using fallback text-only analysis")
+        
+        # Simplified prompt for text-only analysis
+        prompt = """You are an expert business analyst. Extract key business insights from the following text.
+
+Analyze the text for:
+- Product features, benefits, and value propositions
+- Target market and customer segments
+- Revenue models and monetization strategies
+- Market size, growth potential, and competitive landscape
+- Technical capabilities and architecture
+- Business model and go-to-market strategy
+- Key metrics, KPIs, and performance indicators
+- Risks, challenges, and opportunities
+
+Return your analysis as a valid JSON object with the following structure:
+{
+  "product_market_fit": ["key point 1", "key point 2", ...],
+  "monetization": ["key point 1", "key point 2", ...],
+  "data_analytics": ["key point 1", "key point 2", ...],
+  "competitive_landscape": ["key point 1", "key point 2", ...],
+  "business_model": ["key point 1", "key point 2", ...],
+  "technical_insights": ["key point 1", "key point 2", ...]
+}
+
+Focus on extracting actionable business insights from the text content.
+
+Ensure the response is valid JSON with no additional text before or after."""
+
+        try:
+            response = self._call_llama_api(f"{prompt}\n\n{text}")
+            
+            if not response.strip():
+                return {"General": ["No insights could be extracted from the text"]}
+            
+            # Parse JSON response
+            import json
+            response_text = response.strip()
+            
+            # Find JSON object in response
+            start_idx = response_text.find('{')
+            end_idx = response_text.rfind('}') + 1
+            
+            if start_idx != -1 and end_idx > start_idx:
+                json_str = response_text[start_idx:end_idx]
+                result = json.loads(json_str)
+                
+                # Convert to standard format
+                organized_points = {}
+                for category, points in result.items():
+                    if isinstance(points, list):
+                        organized_points[category.replace('_', ' ').title()] = points
+                    else:
+                        organized_points[category.replace('_', ' ').title()] = [str(points)]
+                
+                return organized_points
+            else:
+                return {"General": [response_text]}
+                
+        except Exception as e:
+            logger.error(f"Fallback text analysis failed: {e}")
+            return {"General": ["Analysis failed due to technical issues"]}
     
     def answer_questions(self, text: str, questions: List[str]) -> Dict[str, str]:
         """

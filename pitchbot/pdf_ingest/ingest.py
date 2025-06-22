@@ -112,16 +112,28 @@ class PDFIngest:
                     cleaned_data = self.text_processor.clean_and_structure(extraction_result["text"])
                     
                     # Extract key points with business focus, including images
+                    logger.info(f"Starting key point extraction with {len(extracted_images)} images")
                     key_points_json = self.text_processor.extract_key_points_json(
                         cleaned_data["cleaned_text"], 
                         extracted_images if extracted_images else None
                     )
                     
+                    # Check if we got meaningful results
+                    total_points = sum(len(points) for points in key_points_json.values())
+                    if total_points == 0 or (len(key_points_json) == 1 and "General" in key_points_json and len(key_points_json["General"]) == 1 and not key_points_json["General"][0].strip()):
+                        logger.warning("Image processing may have failed, retrying with text-only analysis")
+                        # Retry with text-only analysis
+                        key_points_json = self.text_processor.extract_key_points_json(
+                            cleaned_data["cleaned_text"], 
+                            None  # No images
+                        )
+                    
                     # Convert JSON structure to flat list for backward compatibility
                     key_points = []
                     for category, points in key_points_json.items():
                         for point in points:
-                            key_points.append(f"[{category}] {point}")
+                            if point.strip():  # Only add non-empty points
+                                key_points.append(f"[{category}] {point}")
                     
                     result["key_points"] = key_points
                     result["key_points_json"] = key_points_json  # Keep structured format too
@@ -139,6 +151,8 @@ class PDFIngest:
                     
                     result["llama_processing"] = True
                     result["llama_processing_time"] = time.time() - llama_start_time
+                    
+                    logger.info(f"Successfully extracted {len(key_points)} key points")
                     
                 except Exception as e:
                     logger.error(f"Llama processing failed: {e}")

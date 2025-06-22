@@ -6,8 +6,18 @@ Extract key points from PDF and save to JSON file.
 import json
 import sys
 import os
+import logging
 from pathlib import Path
 from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 # Redirect stderr to suppress PyMuPDF warnings
 stderr_fd = sys.stderr.fileno()
