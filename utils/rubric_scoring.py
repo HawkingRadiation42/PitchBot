@@ -1,11 +1,12 @@
 """
-Rubric scoring using Llama-4-Maverick-17B-128E-Instruct-FP8 model.
+Rubric scoring using OpenAI SDK to call Llama API, returning structured JSON results.
 """
 
 import asyncio
-from typing import Optional
+import json
+import re
+from typing import Optional, Dict, Any
 
-import httpx
 from llama_api_client import AsyncLlamaAPIClient
 
 # Import config from the main package
@@ -16,21 +17,22 @@ from pitchbot.audio_processor.config import AudioProcessingConfig, default_confi
 
 
 class RubricScorer:
-    """Handles rubric-based scoring using Llama model."""
+    """Handles rubric-based scoring using Llama model with structured JSON output."""
     
     def __init__(self, config: Optional[AudioProcessingConfig] = None):
         """Initialize the rubric scorer with configuration."""
         self.config = config or default_config
         self.config.validate()
         
+        # Initialize Llama API client
         self.client = AsyncLlamaAPIClient(
-            api_key=self.config.llama_api_key,
-            base_url=self.config.llama_base_url
+            api_key=self.config.llama_api_key
         )
     
     def _create_rubric_prompt(self, extracted_info: str) -> str:
         """
         Create a grounded evaluation prompt for scoring a project pitch based on predefined rubric criteria.
+        Returns structured JSON format.
         """
         prompt = f"""You are an expert VC analyst assistant helping evaluate early-stage projects based on pitch content. The information below has been extracted from a live pitch presentation and demo. Your task is to assign scores across four specific judging criteria, based solely on this information.
 
@@ -65,23 +67,88 @@ Only use the information provided below to score. Do not fill in gaps or infer m
 \"\"\"{extracted_info}\"\"\"
 
 ---
-Now provide the following format:
 
-**Impact**: [Score]/100  
-*Justification:* ...
+You must respond with a valid JSON object in exactly this format:
 
-**Demo**: [Score]/100  
-*Justification:* ...
+{{
+  "impact": {{
+    "score": [number between 0-100],
+    "justification": "[detailed justification based on the content]"
+  }},
+  "demo": {{
+    "score": [number between 0-100],
+    "justification": "[detailed justification based on the content]"
+  }},
+  "creativity": {{
+    "score": [number between 0-100],
+    "justification": "[detailed justification based on the content]"
+  }},
+  "pitch": {{
+    "score": [number between 0-100],
+    "justification": "[detailed justification based on the content]"
+  }}
+}}
 
-**Creativity**: [Score]/100  
-*Justification:* ...
-
-**Pitch**: [Score]/100  
-*Justification:* ...
+Ensure the response is valid JSON with lowercase keys and proper formatting.
 """
         return prompt
     
-    async def score(self, extracted_info: str) -> str:
+    def _parse_scoring_response(self, response_text: str) -> Dict[str, Any]:
+        """
+        Parse the LLM response and extract scoring information into structured format.
+        
+        Args:
+            response_text: Raw response from the LLM
+            
+        Returns:
+            Dictionary with scoring results
+        """
+        try:
+            # Try to parse as JSON first
+            if response_text.strip().startswith('{'):
+                return json.loads(response_text.strip())
+            
+            # Extract JSON from response if it's wrapped in other text
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+                return json.loads(json_str)
+            
+            # Fallback: Parse the structured text format manually
+            criteria = ['impact', 'demo', 'creativity', 'pitch']
+            results = {}
+            
+            for criterion in criteria:
+                # Look for the criterion pattern
+                pattern = rf'\*\*{criterion.title()}\*\*:?\s*(\d+)/100\s*\*?[Jj]ustification:?\*?\s*(.+?)(?=\*\*|\Z)'
+                match = re.search(pattern, response_text, re.IGNORECASE | re.DOTALL)
+                
+                if match:
+                    score = int(match.group(1))
+                    justification = match.group(2).strip()
+                    results[criterion.lower()] = {
+                        "score": score,
+                        "justification": justification
+                    }
+                else:
+                    # Default fallback if parsing fails
+                    results[criterion.lower()] = {
+                        "score": 0,
+                        "justification": f"Could not parse {criterion} scoring from response"
+                    }
+            
+            return results
+            
+        except Exception as e:
+            # Return error structure if all parsing fails
+            return {
+                "impact": {"score": 0, "justification": f"Parsing error: {str(e)}"},
+                "demo": {"score": 0, "justification": f"Parsing error: {str(e)}"},
+                "creativity": {"score": 0, "justification": f"Parsing error: {str(e)}"},
+                "pitch": {"score": 0, "justification": f"Parsing error: {str(e)}"}
+            }
+    
+    async def score(self, extracted_info: str) -> Dict[str, Any]:
         """
         Score the given extracted information using rubric-based evaluation.
         
@@ -89,7 +156,7 @@ Now provide the following format:
             extracted_info: Extracted information to score (transcribed text, summary, etc.)
             
         Returns:
-            Rubric-based scoring result
+            Dictionary containing structured rubric scoring results
         """
         if not extracted_info.strip():
             raise ValueError("Input extracted_info is empty")
@@ -104,13 +171,41 @@ Now provide the following format:
                 model=self.config.llama_model
             )
             
-            # Extract the text from the response structure
-            # Based on the actual response: response.completion_message.content.text
-            scoring_result = response.completion_message.content.text.strip()
+            # Extract the text from the response (Llama API format)
+            scoring_text = response.completion_message.content.text.strip()
+            
+            # Parse into structured format
+            scoring_result = self._parse_scoring_response(scoring_text)
+            
             return scoring_result
             
         except Exception as e:
             raise RuntimeError(f"Rubric scoring failed: {str(e)}") from e
+    
+    async def score_legacy_format(self, extracted_info: str) -> str:
+        """
+        Score the given extracted information and return in legacy text format.
+        
+        Args:
+            extracted_info: Extracted information to score
+            
+        Returns:
+            Legacy text format scoring result
+        """
+        structured_result = await self.score(extracted_info)
+        
+        # Convert back to legacy format
+        legacy_lines = []
+        for criterion in ['impact', 'demo', 'creativity', 'pitch']:
+            data = structured_result.get(criterion, {})
+            score = data.get('score', 0)
+            justification = data.get('justification', 'No justification available')
+            
+            legacy_lines.append(f"**{criterion.title()}**: {score}/100")
+            legacy_lines.append(f"*Justification:* {justification}")
+            legacy_lines.append("")  # Empty line for spacing
+        
+        return "\n".join(legacy_lines)
     
     def update_rubric_template(self, custom_rubric_template: str):
         """

@@ -23,7 +23,7 @@ class AudioProcessingConfig:
     # Llama Configuration
     llama_api_key: Optional[str] = None
     llama_model: str = "Llama-4-Maverick-17B-128E-Instruct-FP8"
-    llama_base_url: Optional[str] = None
+    llama_base_url: str = "https://api.llama-api.com/v1"
     
     # Processing Configuration
     max_file_size_mb: int = 100

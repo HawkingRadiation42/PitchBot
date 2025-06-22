@@ -155,7 +155,7 @@ async def process_video(video_file: UploadFile):
             print("Extracting frames...")
             video = cv2.VideoCapture(video_path)
             fps = video.get(cv2.CAP_PROP_FPS)
-            target_fps = 15
+            target_fps = 5
             frame_interval = math.ceil(fps / target_fps)
             
             frames = []
