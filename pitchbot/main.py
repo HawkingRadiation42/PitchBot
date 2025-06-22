@@ -118,7 +118,8 @@ class ModuleSummarizer:
 - Highlight key strengths and potential concerns
 - Keep the summary focused and actionable
 - Use bullet points for clarity
-- Limit to 200-300 words
+- Limit to 300 words
+- Write the summary directly do not say here is the summary or anything like that
 
 **{module_name} Results to Summarize:**
 {module_result}
@@ -131,11 +132,13 @@ class ModuleSummarizer:
                     {"role": "user", "content": prompt}
                 ],
                 model=self.model,
-                max_completion_tokens=500,
+                max_completion_tokens=200,
                 temperature=0.3
             )
             
             summary = response.completion_message.content.text.strip()
+            print("------here-------")
+            
             return summary
             
         except Exception as e:
@@ -218,6 +221,88 @@ async def add_rubric_scores(content: str, module_name: str) -> dict:
             "creativity": {"score": 0, "justification": f"Scoring failed: {str(e)}"},
             "pitch": {"score": 0, "justification": f"Scoring failed: {str(e)}"}
         }
+
+
+# --- Text Formatting Functions ---
+def format_llama_summary(summary_text: str) -> str:
+    """
+    Format llama summary text by converting markdown-style formatting to clean, readable text.
+    Converts to HTML with proper structure for frontend display.
+    
+    Args:
+        summary_text: The raw llama summary text with markdown formatting
+        
+    Returns:
+        HTML formatted text with proper structure
+    """
+    if not summary_text:
+        return ""
+    
+    try:
+        # Start with clean text
+        formatted_text = summary_text.strip()
+        
+        # Convert markdown bold headers to HTML headers
+        formatted_text = re.sub(r'\*\*([^*]+):\*\*', r'<h4>\1:</h4>', formatted_text)
+        
+        # Convert bullet points to proper HTML list items
+        # First, identify bullet point sections
+        lines = formatted_text.split('\n')
+        html_lines = []
+        in_list = False
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                if in_list:
+                    html_lines.append('</ul>')
+                    in_list = False
+                html_lines.append('<br>')
+                continue
+                
+            # Check if line is a bullet point
+            if re.match(r'^\* ', line):
+                if not in_list:
+                    html_lines.append('<ul>')
+                    in_list = True
+                # Clean up the bullet point and add as list item
+                bullet_text = re.sub(r'^\* ', '', line)
+                bullet_text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', bullet_text)
+                html_lines.append(f'<li>{bullet_text}</li>')
+            else:
+                if in_list:
+                    html_lines.append('</ul>')
+                    in_list = False
+                # Handle regular text (possibly headers)
+                if '<h4>' in line:
+                    html_lines.append(line)
+                else:
+                    # Clean up any remaining asterisks
+                    line = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', line)
+                    html_lines.append(f'<p>{line}</p>')
+        
+        # Close any remaining list
+        if in_list:
+            html_lines.append('</ul>')
+        
+        formatted_html = '\n'.join(html_lines)
+        
+        # Clean up multiple consecutive line breaks
+        formatted_html = re.sub(r'(<br>\s*){2,}', '<br>', formatted_html)
+        
+        return formatted_html
+        
+    except Exception as e:
+        print(f"⚠️ Error formatting llama summary: {e}")
+        # Fallback to simple text formatting
+        try:
+            simple_format = summary_text
+            simple_format = re.sub(r'\*\*([^*]+):\*\*', r'\1:', simple_format)
+            simple_format = re.sub(r'^\* ', '• ', simple_format, flags=re.MULTILINE)
+            simple_format = re.sub(r'\*\*([^*]+)\*\*', r'\1', simple_format)
+            return simple_format
+        except:
+            return summary_text
 
 
 # --- Domain Extraction Functions ---
@@ -407,12 +492,17 @@ async def get_pitch_history():
                     elif "analysis" in module_data:
                         analysis_text = str(module_data["analysis"])
                     
+                    # Extract llama summary
+                    raw_llama_summary = module_data.get("llama_summary", "")
+                    formatted_llama_summary = format_llama_summary(raw_llama_summary) if raw_llama_summary else ""
+                    
                     # Extract rubric scores
                     rubric_scores = module_data.get("rubric_scores", {})
                     
                     # Structure module data
                     module_entry = {
                         "analysis": analysis_text,
+                        "llama_summary": formatted_llama_summary,
                         "impact": rubric_scores.get("impact", {}).get("score", 0),
                         "demo": rubric_scores.get("demo", {}).get("score", 0),
                         "creativity": rubric_scores.get("creativity", {}).get("score", 0),
