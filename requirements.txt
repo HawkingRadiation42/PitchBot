@@ -22,6 +22,9 @@ aiofiles
 llama-api-client
 httpx
 
+# For rubric scoring using OpenAI SDK with Llama API
+openai>=1.0.0
+
 # For PDF processing pipeline
 PyMuPDF
 beautifulsoup4

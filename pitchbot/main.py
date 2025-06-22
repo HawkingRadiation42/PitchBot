@@ -6,9 +6,13 @@ import sys
 import asyncio
 from typing import Optional, Union
 import argparse
+import json
+import os
+from datetime import datetime
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, Form
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # Load environment variables from .env file in the root directory
@@ -22,6 +26,13 @@ from .company_url_processor import process_company_url
 
 # Import agentic search components
 from .agentic_search.enhanced_research_pipeline import EnhancedResearchPipeline
+
+# Import rubric scoring
+import sys
+import re
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
+from utils.rubric_scoring import RubricScorer
 
 
 class StartupResearcher:
@@ -69,12 +80,260 @@ class StartupResearcher:
         return research_data
 
 
+# --- Rubric Scoring Functions ---
+async def add_rubric_scores(content: str, module_name: str) -> dict:
+    """
+    Score content using rubric scorer and return structured results.
+    
+    Args:
+        content: The content to score
+        module_name: Name of the module for logging
+        
+    Returns:
+        Dictionary containing rubric scores or None if scoring fails
+    """
+    try:
+        print(f"🎯 Scoring {module_name} with rubric system...")
+        scorer = RubricScorer()
+        rubric_scores = await scorer.score(content)
+        
+        # Calculate average score for summary
+        total_score = sum(rubric_scores[key]['score'] for key in rubric_scores if 'score' in rubric_scores[key])
+        avg_score = total_score / 4 if len(rubric_scores) >= 4 else 0
+        
+        print(f"✅ {module_name} rubric scoring completed! Average: {avg_score:.1f}/100")
+        return rubric_scores
+        
+    except Exception as e:
+        print(f"❌ {module_name} rubric scoring failed: {str(e)}")
+        return {
+            "impact": {"score": 0, "justification": f"Scoring failed: {str(e)}"},
+            "demo": {"score": 0, "justification": f"Scoring failed: {str(e)}"},
+            "creativity": {"score": 0, "justification": f"Scoring failed: {str(e)}"},
+            "pitch": {"score": 0, "justification": f"Scoring failed: {str(e)}"}
+        }
+
+
+# --- Domain Extraction Functions ---
+def extract_domain_from_company_analysis(result_text: str) -> str:
+    """
+    Extract the domain/industry from company analysis result text.
+    
+    Args:
+        result_text: The company analysis result string
+        
+    Returns:
+        Extracted domain or "Unknown" if not found
+    """
+    try:
+        # Convert to string if not already
+        text = str(result_text)
+        
+        # Look for various domain patterns
+        domain_patterns = [
+            r"Domain:\s*([^\n\r]+)",
+            r"Industry:\s*([^\n\r]+)", 
+            r"Sector:\s*([^\n\r]+)",
+            r"Field:\s*([^\n\r]+)",
+            r"Business Domain:\s*([^\n\r]+)",
+            r"Company Domain:\s*([^\n\r]+)"
+        ]
+        
+        for pattern in domain_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                domain = match.group(1).strip()
+                # Clean up common prefixes/suffixes
+                domain = re.sub(r'^[:\-\s]+|[:\-\s]+$', '', domain)
+                if domain and domain.lower() not in ['unknown', 'n/a', 'not specified']:
+                    return domain
+        
+        # If no explicit domain found, try to infer from common keywords
+        business_keywords = {
+            'software': 'Technology/Software',
+            'ai': 'Artificial Intelligence',
+            'tech': 'Technology', 
+            'health': 'Healthcare',
+            'medical': 'Healthcare',
+            'finance': 'Financial Services',
+            'fintech': 'Financial Technology',
+            'ecommerce': 'E-commerce',
+            'retail': 'Retail',
+            'education': 'Education',
+            'edtech': 'Educational Technology',
+            'marketing': 'Marketing',
+            'consulting': 'Consulting',
+            'manufacturing': 'Manufacturing',
+            'logistics': 'Logistics',
+            'energy': 'Energy',
+            'real estate': 'Real Estate',
+            'food': 'Food & Beverage',
+            'entertainment': 'Entertainment',
+            'media': 'Media',
+            'gaming': 'Gaming',
+            'automotive': 'Automotive',
+            'blockchain': 'Blockchain/Crypto',
+            'cryptocurrency': 'Blockchain/Crypto'
+        }
+        
+        text_lower = text.lower()
+        for keyword, domain in business_keywords.items():
+            if keyword in text_lower:
+                return domain
+                
+        return "Unknown"
+        
+    except Exception as e:
+        print(f"⚠️ Error extracting domain: {e}")
+        return "Unknown"
+
+
+# --- JSON Storage Functions ---
+def save_analysis_to_json(analysis_data: dict, json_file_path: str = "pitch_analysis_history.json") -> None:
+    """
+    Save analysis data to a JSON file as a list of dictionaries.
+    Each API call appends a new dictionary to the list.
+    
+    Args:
+        analysis_data: The complete analysis dictionary to save
+        json_file_path: Path to the JSON file (defaults to pitch_analysis_history.json)
+    """
+    try:
+        # Add timestamp to the data
+        timestamped_data = {
+            "timestamp": datetime.now().isoformat(),
+            "data": analysis_data
+        }
+        
+        # Check if file exists and load existing data
+        if os.path.exists(json_file_path):
+            try:
+                with open(json_file_path, 'r', encoding='utf-8') as f:
+                    existing_data = json.load(f)
+                    
+                # Ensure existing_data is a list
+                if not isinstance(existing_data, list):
+                    existing_data = []
+            except (json.JSONDecodeError, IOError):
+                print(f"⚠️ Could not read existing JSON file. Creating new one.")
+                existing_data = []
+        else:
+            existing_data = []
+        
+        # Append new data
+        existing_data.append(timestamped_data)
+        
+        # Save back to file
+        with open(json_file_path, 'w', encoding='utf-8') as f:
+            json.dump(existing_data, f, indent=2, ensure_ascii=False)
+        
+        print(f"✅ Analysis saved to {json_file_path} (Total records: {len(existing_data)})")
+        
+    except Exception as e:
+        print(f"❌ Failed to save analysis to JSON: {str(e)}")
+
+
 # --- FastAPI Application ---
 app = FastAPI(
     title="PitchBot API",
     description="API for processing and analyzing startup pitches.",
     version="0.1.0"
 )
+
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
+@app.get("/pitch-history/")
+async def get_pitch_history():
+    """
+    Get pitch analysis history with structured data.
+    Returns a list of dictionaries containing timestamp, module analyses, and rubric scores.
+    """
+    try:
+        # Check if the history file exists
+        if not os.path.exists("pitch_analysis_history.json"):
+            return {"message": "No pitch history found", "data": []}
+        
+        # Read the history file
+        with open("pitch_analysis_history.json", 'r', encoding='utf-8') as f:
+            history_data = json.load(f)
+        
+        # If not a list, convert to list
+        if not isinstance(history_data, list):
+            history_data = []
+        
+        # Extract and restructure the data
+        structured_history = []
+        
+        for entry in history_data:
+            timestamp = entry.get("timestamp", "")
+            analysis_data = entry.get("data", {}).get("analysis", {})
+            modules_data = analysis_data.get("modules", {})
+            
+            # Create structured entry
+            structured_entry = {
+                "timestamp": timestamp
+            }
+            
+            # Extract data for each module type
+            module_mapping = {
+                "pdf_analysis": "pdf",
+                "video_analysis": "video", 
+                "github_analysis": "github",
+                "company_analysis": "company_website",
+                "market_research": "agentic_research"
+            }
+            
+            for module_key, module_name in module_mapping.items():
+                if module_key in modules_data:
+                    module_data = modules_data[module_key]
+                    
+                    # Extract analysis text
+                    analysis_text = ""
+                    if "result" in module_data:
+                        analysis_text = str(module_data["result"])
+                    elif "analysis" in module_data:
+                        analysis_text = str(module_data["analysis"])
+                    
+                    # Extract rubric scores
+                    rubric_scores = module_data.get("rubric_scores", {})
+                    
+                    # Structure module data
+                    module_entry = {
+                        "analysis": analysis_text,
+                        "impact": rubric_scores.get("impact", {}).get("score", 0),
+                        "demo": rubric_scores.get("demo", {}).get("score", 0),
+                        "creativity": rubric_scores.get("creativity", {}).get("score", 0),
+                        "pitch": rubric_scores.get("pitch", {}).get("score", 0)
+                    }
+                    
+                    # Add domain for company analysis
+                    if module_name == "company_website" and "domain" in module_data:
+                        module_entry["domain"] = module_data["domain"]
+                    
+                    structured_entry[module_name] = module_entry
+            
+            # Only add entries that have at least one module
+            if any(key in structured_entry for key in ["pdf", "video", "github", "company_website", "agentic_research"]):
+                structured_history.append(structured_entry)
+        
+        return {
+            "message": f"Retrieved {len(structured_history)} pitch analysis records",
+            "data": structured_history
+        }
+        
+    except Exception as e:
+        return {
+            "message": f"Error reading pitch history: {str(e)}",
+            "data": []
+        }
+
 
 @app.post("/analyze-pitch/")
 async def analyze_pitch(
@@ -232,65 +491,107 @@ async def analyze_pitch(
         "modules": {}
     }
     
-    # Map results to their respective modules
+    # Map results to their respective modules with rubric scoring
     result_index = 0
     
     if final_video_file and hasattr(final_video_file, 'size') and final_video_file.size and final_video_file.size > 0:
         if result_index < len(parallel_results):
+            video_result = parallel_results[result_index]
             structured_results["modules"]["video_analysis"] = {
                 "module_name": "Video Processor",
                 "input_file": final_video_file.filename,
                 "status": "completed",
-                "result": parallel_results[result_index]
+                "result": video_result
             }
+            
+            # Add rubric scoring for video analysis
+            video_rubric_scores = await add_rubric_scores(video_result, "Video Analysis")
+            structured_results["modules"]["video_analysis"]["rubric_scores"] = video_rubric_scores
+            
             result_index += 1
     
     if final_pdf_document and final_pdf_document.filename:
         if result_index < len(parallel_results):
+            pdf_result = parallel_results[result_index]
             structured_results["modules"]["pdf_analysis"] = {
                 "module_name": "PDF Processor", 
                 "input_file": final_pdf_document.filename,
                 "status": "completed",
-                "result": parallel_results[result_index]
+                "result": pdf_result
             }
+            
+            # Add rubric scoring for PDF analysis
+            pdf_rubric_scores = await add_rubric_scores(pdf_result, "PDF Analysis")
+            structured_results["modules"]["pdf_analysis"]["rubric_scores"] = pdf_rubric_scores
+            
             result_index += 1
     
     if source_url:
         if result_index < len(parallel_results):
+            github_result = parallel_results[result_index]
             structured_results["modules"]["github_analysis"] = {
                 "module_name": "GitHub Repository Analyzer",
                 "input_url": source_url,
                 "status": "completed", 
-                "result": parallel_results[result_index]
+                "result": github_result
             }
+            
+            # Add rubric scoring for GitHub analysis
+            github_rubric_scores = await add_rubric_scores(github_result, "GitHub Analysis")
+            structured_results["modules"]["github_analysis"]["rubric_scores"] = github_rubric_scores
+            
             result_index += 1
     
     if company_url:
         if result_index < len(parallel_results):
+            company_result = parallel_results[result_index]
+            
+            # Extract domain from company analysis result
+            extracted_domain = extract_domain_from_company_analysis(company_result)
+            
             structured_results["modules"]["company_analysis"] = {
                 "module_name": "Company Website Analyzer",
                 "input_url": company_url,
                 "status": "completed",
-                "result": parallel_results[result_index]
+                "result": company_result,
+                "domain": extracted_domain
             }
+            
+            # Add rubric scoring for company analysis
+            company_rubric_scores = await add_rubric_scores(company_result, "Company Analysis")
+            structured_results["modules"]["company_analysis"]["rubric_scores"] = company_rubric_scores
+            
             result_index += 1
     
     # Add agentic search results to structured response
     if agentic_search_result:
+        market_research_analysis = agentic_search_result.get("analysis", "")
         structured_results["modules"]["market_research"] = {
             "module_name": "Agentic Market Research",
             "input_summary": "Combined analysis from all processed modules",
             "status": "completed" if "error" not in agentic_search_result else "failed",
             "search_queries": agentic_search_result.get("search_queries", []),
             "total_pages_analyzed": agentic_search_result.get("total_pages_analyzed", 0),
-            "analysis": agentic_search_result.get("analysis", ""),
+            "analysis": market_research_analysis,
             "error": agentic_search_result.get("error", None)
         }
+        
+        # Add rubric scoring for market research (only if successfully completed)
+        if "error" not in agentic_search_result and market_research_analysis:
+            market_research_rubric_scores = await add_rubric_scores(market_research_analysis, "Market Research")
+            structured_results["modules"]["market_research"]["rubric_scores"] = market_research_rubric_scores
 
-    return {
+    # Create the final response
+    final_response = {
         "message": "Pitch assets received and processed successfully.",
         "analysis": structured_results
     }
+    
+    # --- SAVE TO JSON FILE ---
+    print("\n💾 Saving analysis to JSON file...")
+    save_analysis_to_json(final_response)
+    
+    return final_response
 
 # --- Command-Line Interface ---
 def main(args: Optional[list[str]] = None) -> int:
