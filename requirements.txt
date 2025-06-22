@@ -1,0 +1,4 @@
+opencv-python
+openai-whisper
+python-dotenv
+requests 
