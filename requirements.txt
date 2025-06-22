@@ -22,3 +22,5 @@ aiofiles
 PyMuPDF
 beautifulsoup4
 Pillow 
+pdfplumber
+pdfminer.six
