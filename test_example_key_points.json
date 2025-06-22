@@ -1,0 +1,101 @@
+{
+  "source_info": {
+    "input": "test_example.html",
+    "type": "file",
+    "title": "Test Startup - AI-Powered Business Solution",
+    "description": "An innovative AI-powered platform that revolutionizes business operations through intelligent automation and data-driven insights.",
+    "extraction_method": "beautifulsoup",
+    "processing_time": 3.4633450508117676,
+    "llama_processing_time": 3.4527769088745117,
+    "extraction_date": "2025-06-21T22:16:03.742496"
+  },
+  "text_stats": {
+    "word_count": 234,
+    "sentence_count": 13,
+    "paragraph_count": 1
+  },
+  "images": {
+    "extracted_count": 0,
+    "image_paths": [],
+    "image_info": []
+  },
+  "key_points": {
+    "total_count": 17,
+    "by_category": {
+      "Product Market Fit": [
+        "The platform targets small to medium enterprises (SMEs), enterprise corporations, and startups/scale-ups, indicating a broad market appeal.",
+        "The global AI market is projected to reach $1.8 trillion by 2030, showing significant growth potential.",
+        "The platform's features, such as intelligent automation and advanced data analytics, address key business needs."
+      ],
+      "Visual Content": [
+        "Although there are no images in the provided text content, a typical analysis would involve examining charts, graphs, and UI/UX elements to understand the platform's features and market data."
+      ],
+      "Monetization": [
+        "The platform has a tiered revenue model with Starter, Professional, and Enterprise plans priced at $29/month, $99/month, and custom pricing, respectively.",
+        "The Customer Lifetime Value is $2,400, indicating a significant revenue potential per customer.",
+        "Monthly Recurring Revenue is $50,000, showing initial traction."
+      ],
+      "Data Analytics": [
+        "Key Performance Indicators (KPIs) include Customer Acquisition Cost ($150), Customer Lifetime Value ($2,400), Monthly Recurring Revenue ($50,000), and Customer Retention Rate (95%).",
+        "These metrics suggest a well-tracked and potentially scalable business model."
+      ],
+      "Competitive Landscape": [
+        "The platform differentiates itself through real-time AI decision making, seamless integration with existing systems, and advanced natural language processing.",
+        "The leadership team's background in AI and machine learning (e.g., former VP of Engineering at Google and PhD from Stanford) adds to the competitive advantage."
+      ],
+      "Business Model": [
+        "The go-to-market strategy likely involves targeting the identified broad market segments with a scalable sales approach.",
+        "Partnerships or integrations with existing systems could be a key strategy for growth.",
+        "The cloud-native architecture supports scalability with business growth."
+      ],
+      "Technical Insights": [
+        "The platform utilizes cutting-edge AI technology for automation and data analytics.",
+        "The scalable, cloud-native architecture is designed to support millions of users.",
+        "Features include intelligent automation, advanced data analytics, and predictive analytics capabilities."
+      ]
+    },
+    "flat_list": [
+      "[Product Market Fit] The platform targets small to medium enterprises (SMEs), enterprise corporations, and startups/scale-ups, indicating a broad market appeal.",
+      "[Product Market Fit] The global AI market is projected to reach $1.8 trillion by 2030, showing significant growth potential.",
+      "[Product Market Fit] The platform's features, such as intelligent automation and advanced data analytics, address key business needs.",
+      "[Visual Content] Although there are no images in the provided text content, a typical analysis would involve examining charts, graphs, and UI/UX elements to understand the platform's features and market data.",
+      "[Monetization] The platform has a tiered revenue model with Starter, Professional, and Enterprise plans priced at $29/month, $99/month, and custom pricing, respectively.",
+      "[Monetization] The Customer Lifetime Value is $2,400, indicating a significant revenue potential per customer.",
+      "[Monetization] Monthly Recurring Revenue is $50,000, showing initial traction.",
+      "[Data Analytics] Key Performance Indicators (KPIs) include Customer Acquisition Cost ($150), Customer Lifetime Value ($2,400), Monthly Recurring Revenue ($50,000), and Customer Retention Rate (95%).",
+      "[Data Analytics] These metrics suggest a well-tracked and potentially scalable business model.",
+      "[Competitive Landscape] The platform differentiates itself through real-time AI decision making, seamless integration with existing systems, and advanced natural language processing.",
+      "[Competitive Landscape] The leadership team's background in AI and machine learning (e.g., former VP of Engineering at Google and PhD from Stanford) adds to the competitive advantage.",
+      "[Business Model] The go-to-market strategy likely involves targeting the identified broad market segments with a scalable sales approach.",
+      "[Business Model] Partnerships or integrations with existing systems could be a key strategy for growth.",
+      "[Business Model] The cloud-native architecture supports scalability with business growth.",
+      "[Technical Insights] The platform utilizes cutting-edge AI technology for automation and data analytics.",
+      "[Technical Insights] The scalable, cloud-native architecture is designed to support millions of users.",
+      "[Technical Insights] Features include intelligent automation, advanced data analytics, and predictive analytics capabilities."
+    ]
+  },
+  "metadata": {
+    "source": "test_example.html",
+    "title": "Test Startup - AI-Powered Business Solution",
+    "description": "An innovative AI-powered platform that revolutionizes business operations through intelligent automation and data-driven insights.",
+    "keywords": [
+      "AI",
+      "business automation",
+      "startup",
+      "technology",
+      "innovation"
+    ],
+    "author": "",
+    "language": "en",
+    "charset": "UTF-8",
+    "viewport": "width=device-width, initial-scale=1.0",
+    "robots": "",
+    "canonical_url": "",
+    "og_title": "Test Startup - AI-Powered Business Solution",
+    "og_description": "Revolutionary AI platform for modern businesses",
+    "og_image": "",
+    "twitter_title": "",
+    "twitter_description": "",
+    "twitter_image": ""
+  }
+}
