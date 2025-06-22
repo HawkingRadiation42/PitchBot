@@ -1,0 +1,109 @@
+{
+  "pdf_info": {
+    "filename": "public/example_document.pdf",
+    "pages": 10,
+    "extraction_method": "pymupdf",
+    "processing_time": 11.145734071731567,
+    "llama_processing_time": 10.172423839569092,
+    "extraction_date": "2025-06-21T22:04:42.131641"
+  },
+  "text_stats": {
+    "word_count": 237,
+    "sentence_count": 21,
+    "paragraph_count": 1
+  },
+  "images": {
+    "extracted_count": 10,
+    "image_paths": [
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_1.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_2.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_3.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_4.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_5.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_6.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_7.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_3_img_8.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_4_img_1.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/pdf_images_i0ouhy3c/page_9_img_1.png"
+    ]
+  },
+  "key_points": {
+    "total_count": 23,
+    "by_category": {
+      "Product Market Fit": [
+        "The product iFlirtWithAI is designed to enhance social skills and make connections effortless.",
+        "It is targeting the dating app market, which is estimated to reach $9.2B by 2025.",
+        "The product is not limited to dating apps and can be used on various platforms such as professional networks, social media, discussion forums, and online gaming platforms.",
+        "The product has a unique reservoir of conversational flair from various sources such as web series, movie scripts, novels, and articles."
+      ],
+      "Visual Content": [
+        "The images show various screenshots of the product's UI/UX, including chat interfaces, user profiles, and settings.",
+        "The product has a clean and modern design with a predominantly white and blue color scheme.",
+        "Some images show charts and graphs, but the exact data is not clear.",
+        "The brand elements, such as logos and color patterns, are consistent across the images."
+      ],
+      "Monetization": [
+        "The product is expected to generate revenue through premium add-ons and subscriptions for dating app enthusiasts.",
+        "The product can be expanded beyond dating apps to other platforms, providing additional revenue streams.",
+        "The estimated dating app market share by 2026 is $9.2 Billion."
+      ],
+      "Data Analytics": [
+        "The product tracks various metrics, including conversation ratio, sentiment analysis, and feedback.",
+        "The product uses AI to analyze user interactions and provide personalized feedback.",
+        "The product has a feedback loop that rates responses on a word level and document level."
+      ],
+      "Competitive Landscape": [
+        "The product is positioned as a unique solution that goes beyond dating apps and can be used on various platforms.",
+        "The product has a personalized AI assistant that can be specific to each user.",
+        "The product's competitive advantage lies in its ability to provide a unique reservoir of conversational flair and its feedback loop."
+      ],
+      "Business Model": [
+        "The product's business model is based on providing a value-added service to users through its AI-powered conversational skills.",
+        "The product can be used on various platforms, providing a go-to-market strategy that is not limited to a single platform.",
+        "The product's partnerships with various platforms can provide additional revenue streams."
+      ],
+      "Technical Insights": [
+        "The product uses AI and machine learning to analyze user interactions and provide personalized feedback.",
+        "The product has a complex architecture that involves natural language processing and machine learning algorithms.",
+        "The product's technical roadmap likely involves continued development of its AI capabilities and expansion to new platforms."
+      ]
+    },
+    "flat_list": [
+      "[Product Market Fit] The product iFlirtWithAI is designed to enhance social skills and make connections effortless.",
+      "[Product Market Fit] It is targeting the dating app market, which is estimated to reach $9.2B by 2025.",
+      "[Product Market Fit] The product is not limited to dating apps and can be used on various platforms such as professional networks, social media, discussion forums, and online gaming platforms.",
+      "[Product Market Fit] The product has a unique reservoir of conversational flair from various sources such as web series, movie scripts, novels, and articles.",
+      "[Visual Content] The images show various screenshots of the product's UI/UX, including chat interfaces, user profiles, and settings.",
+      "[Visual Content] The product has a clean and modern design with a predominantly white and blue color scheme.",
+      "[Visual Content] Some images show charts and graphs, but the exact data is not clear.",
+      "[Visual Content] The brand elements, such as logos and color patterns, are consistent across the images.",
+      "[Monetization] The product is expected to generate revenue through premium add-ons and subscriptions for dating app enthusiasts.",
+      "[Monetization] The product can be expanded beyond dating apps to other platforms, providing additional revenue streams.",
+      "[Monetization] The estimated dating app market share by 2026 is $9.2 Billion.",
+      "[Data Analytics] The product tracks various metrics, including conversation ratio, sentiment analysis, and feedback.",
+      "[Data Analytics] The product uses AI to analyze user interactions and provide personalized feedback.",
+      "[Data Analytics] The product has a feedback loop that rates responses on a word level and document level.",
+      "[Competitive Landscape] The product is positioned as a unique solution that goes beyond dating apps and can be used on various platforms.",
+      "[Competitive Landscape] The product has a personalized AI assistant that can be specific to each user.",
+      "[Competitive Landscape] The product's competitive advantage lies in its ability to provide a unique reservoir of conversational flair and its feedback loop.",
+      "[Business Model] The product's business model is based on providing a value-added service to users through its AI-powered conversational skills.",
+      "[Business Model] The product can be used on various platforms, providing a go-to-market strategy that is not limited to a single platform.",
+      "[Business Model] The product's partnerships with various platforms can provide additional revenue streams.",
+      "[Technical Insights] The product uses AI and machine learning to analyze user interactions and provide personalized feedback.",
+      "[Technical Insights] The product has a complex architecture that involves natural language processing and machine learning algorithms.",
+      "[Technical Insights] The product's technical roadmap likely involves continued development of its AI capabilities and expansion to new platforms."
+    ]
+  },
+  "metadata": {
+    "filename": "example_document.pdf",
+    "file_size": 613003,
+    "pages": 10,
+    "title": "IFlirtWithAI",
+    "author": "",
+    "subject": "",
+    "creator": "Google",
+    "producer": "",
+    "creation_date": "",
+    "modification_date": ""
+  }
+}

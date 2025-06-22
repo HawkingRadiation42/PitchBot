@@ -1,0 +1,19 @@
+{
+  "scraping_session": {
+    "start_time": "2025-06-22T01:08:42.621253",
+    "end_time": "2025-06-22T01:08:44.208925",
+    "base_url": "https://example.com",
+    "total_pages": 0,
+    "successful_pages": 0,
+    "failed_pages": 0,
+    "total_time": 1.5876719951629639,
+    "configuration": {
+      "max_depth": 3,
+      "max_pages": 20,
+      "delay": 2.0,
+      "concurrent_requests": 3,
+      "content_threshold": 0.6
+    }
+  },
+  "results": []
+}

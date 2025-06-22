@@ -3,10 +3,10 @@ Main entry point for PitchBot application.
 """
 
 import sys
-from typing import Optional
+from typing import Optional, List
 
 
-def main(args: Optional[list[str]] = None) -> int:
+def main(args: Optional[List[str]] = None) -> int:
     """
     Main entry point for PitchBot.
     

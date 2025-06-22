@@ -1,0 +1,23 @@
+{
+  "https://cluely.com/": {
+    "total_pages": 0,
+    "successful_pages": 0,
+    "failed_pages": 0,
+    "avg_content_score": 0.0,
+    "top_pages": []
+  },
+  "https://www.boundaryml.com/": {
+    "total_pages": 0,
+    "successful_pages": 0,
+    "failed_pages": 0,
+    "avg_content_score": 0.0,
+    "top_pages": []
+  },
+  "https://www.spurtest.com/": {
+    "total_pages": 0,
+    "successful_pages": 0,
+    "failed_pages": 0,
+    "avg_content_score": 0.0,
+    "top_pages": []
+  }
+}

@@ -1,0 +1,302 @@
+{
+  "source_info": {
+    "input": "https://cluely.com/",
+    "type": "url",
+    "title": "Cluely",
+    "description": "Everything You Need. Before You Ask.",
+    "extraction_method": "beautifulsoup",
+    "processing_time": 37.418079137802124,
+    "llama_processing_time": 16.16892695426941,
+    "extraction_date": "2025-06-21T22:17:28.657527"
+  },
+  "text_stats": {
+    "word_count": 292,
+    "sentence_count": 27,
+    "paragraph_count": 1
+  },
+  "images": {
+    "extracted_count": 15,
+    "image_paths": [
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_1.webp",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_2.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_3.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_4.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_5.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_6.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_7.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_8.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_9.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_10.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_11.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_12.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_13.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_14.png",
+      "/var/folders/f2/62drfmqx3sj4g958q0mdgfrm0000gn/T/html_images_pdyjdbdf/image_15.png"
+    ],
+    "image_info": [
+      {
+        "src": "https://cluely.com/_next/static/media/frame.e956ee74.webp",
+        "alt": "cluely-ui",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/bento1.3b364800.png",
+        "alt": "",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/bento2.5d45c6ca.png",
+        "alt": "",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/bento3.b9446d98.png",
+        "alt": "",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/works.2bbce57b.png",
+        "alt": "",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "h-46",
+          "lg:h-50",
+          "mt-8",
+          "mx-auto"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/meeting.d6f4df3a.png",
+        "alt": "Doesn’t join meetings-screenshot",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "bg-[#1D2025]",
+          "rounded-[18px]",
+          "w-full",
+          "max-w-none",
+          "ring-1",
+          "ring-white/5"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/screen.8c07aba8.png",
+        "alt": "Invisible to screen-share-screenshot",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "bg-[#1D2025]",
+          "rounded-[18px]",
+          "w-full",
+          "max-w-none",
+          "ring-1",
+          "ring-white/5"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/eyes.00797834.png",
+        "alt": "Follow your eyes-screenshot",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "bg-[#1D2025]",
+          "rounded-[18px]",
+          "w-full",
+          "max-w-none",
+          "ring-1",
+          "ring-white/5"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/meeting.c59aeb79.png",
+        "alt": "Section 1 image",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "max-w-full",
+          "max-h-full",
+          "object-contain",
+          "rounded-r-[18px]",
+          "border-r",
+          "border-y",
+          "border-zinc-200/70"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/sales.a83b1a9d.png",
+        "alt": "Section 2 image",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "max-w-full",
+          "max-h-full",
+          "object-contain",
+          "rounded-r-[18px]",
+          "border-r",
+          "border-y",
+          "border-zinc-200/70"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/deep.b625b59c.png",
+        "alt": "Section 3 image",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "max-w-full",
+          "max-h-full",
+          "object-contain",
+          "rounded-r-[18px]",
+          "border-r",
+          "border-y",
+          "border-zinc-200/70"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/meeting.c59aeb79.png",
+        "alt": "Section 1 image (mobile view)",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "max-h-full",
+          "object-contain"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/sales.a83b1a9d.png",
+        "alt": "Section 2 image (mobile view)",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "max-h-full",
+          "object-contain"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/static/media/deep.b625b59c.png",
+        "alt": "Section 3 image (mobile view)",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "max-h-full",
+          "object-contain"
+        ],
+        "id": ""
+      },
+      {
+        "src": "https://cluely.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcta.f1f97aa0.png&w=3840&q=75",
+        "alt": "hero-background",
+        "title": "",
+        "width": "",
+        "height": "",
+        "class": [
+          "relative",
+          "z-[0]",
+          "object-cover",
+          "object-center",
+          "fill"
+        ],
+        "id": ""
+      }
+    ]
+  },
+  "key_points": {
+    "total_count": 13,
+    "by_category": {
+      "Product Market Fit": [
+        "Cluely is an AI tool that provides real-time assistance by seeing the user's screen and hearing their calls",
+        "It is designed to be undetectable and invisible to others, making it suitable for sensitive or confidential work",
+        "Cluely aims to revolutionize the way people work by providing context-aware responses and recalling information from earlier conversations"
+      ],
+      "Monetization": [
+        "The text does not explicitly mention a revenue model, but it implies a potential subscription-based model through 'Download for Mac Download for windows' calls-to-action",
+        "The product's unique features and benefits may enable premium pricing due to its ability to enhance productivity and efficiency"
+      ],
+      "Data Analytics": [
+        "Cluely uses AI to analyze the user's screen content and meeting audio in real-time",
+        "It can understand code, slides, questions, docs, and dashboards, indicating a broad range of analytical capabilities"
+      ],
+      "Competitive Landscape": [
+        "The text does not directly compare Cluely to competitors, but its unique features, such as being 'undetectable by design', may differentiate it from existing solutions",
+        "Cluely's ability to provide context-aware responses and recall information from earlier conversations may be a key differentiator"
+      ],
+      "Business Model": [
+        "Cluely is positioned as a productivity-enhancing tool for individuals, particularly those in sales, research, and development",
+        "The product's go-to-market strategy appears to focus on direct downloads for Mac and Windows users"
+      ],
+      "Technical Insights": [
+        "Cluely's AI capabilities enable it to understand a wide range of content types, including code and meeting audio",
+        "The tool is designed to be highly discreet and invisible to others, suggesting a strong focus on security and confidentiality"
+      ]
+    },
+    "flat_list": [
+      "[Product Market Fit] Cluely is an AI tool that provides real-time assistance by seeing the user's screen and hearing their calls",
+      "[Product Market Fit] It is designed to be undetectable and invisible to others, making it suitable for sensitive or confidential work",
+      "[Product Market Fit] Cluely aims to revolutionize the way people work by providing context-aware responses and recalling information from earlier conversations",
+      "[Monetization] The text does not explicitly mention a revenue model, but it implies a potential subscription-based model through 'Download for Mac Download for windows' calls-to-action",
+      "[Monetization] The product's unique features and benefits may enable premium pricing due to its ability to enhance productivity and efficiency",
+      "[Data Analytics] Cluely uses AI to analyze the user's screen content and meeting audio in real-time",
+      "[Data Analytics] It can understand code, slides, questions, docs, and dashboards, indicating a broad range of analytical capabilities",
+      "[Competitive Landscape] The text does not directly compare Cluely to competitors, but its unique features, such as being 'undetectable by design', may differentiate it from existing solutions",
+      "[Competitive Landscape] Cluely's ability to provide context-aware responses and recall information from earlier conversations may be a key differentiator",
+      "[Business Model] Cluely is positioned as a productivity-enhancing tool for individuals, particularly those in sales, research, and development",
+      "[Business Model] The product's go-to-market strategy appears to focus on direct downloads for Mac and Windows users",
+      "[Technical Insights] Cluely's AI capabilities enable it to understand a wide range of content types, including code and meeting audio",
+      "[Technical Insights] The tool is designed to be highly discreet and invisible to others, suggesting a strong focus on security and confidentiality"
+    ]
+  },
+  "metadata": {
+    "source": "https://cluely.com/",
+    "title": "Cluely",
+    "description": "Everything You Need. Before You Ask.",
+    "keywords": [],
+    "author": "",
+    "language": "en",
+    "charset": "utf-8",
+    "viewport": "width=device-width, initial-scale=1",
+    "robots": "",
+    "canonical_url": "",
+    "og_title": "Cluely",
+    "og_description": "Everything You Need. Before You Ask.",
+    "og_image": "https://cluely.com/opengraph-image.png?77f2c7ba9633baa1",
+    "twitter_title": "Cluely",
+    "twitter_description": "Everything You Need. Before You Ask.",
+    "twitter_image": "https://cluely.com/twitter-image.png?77f2c7ba9633baa1"
+  }
+}
