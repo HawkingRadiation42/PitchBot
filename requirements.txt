@@ -18,6 +18,10 @@ soundfile
 aiohttp
 aiofiles
 
+# For agentic search functionality
+llama-api-client
+httpx
+
 # For PDF processing pipeline
 PyMuPDF
 beautifulsoup4

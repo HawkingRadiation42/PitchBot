@@ -20,6 +20,93 @@ from .pdf_processor import process_pdf
 from .url_processor import process_url
 from .company_url_processor import process_company_url
 
+# Import agentic search components
+from .agentic_search import SearchQueryGenerator, BraveSearchClient, ResearchAnalyzer
+
+
+class StartupResearcher:
+    """Comprehensive startup research using query generation and web search."""
+    
+    def __init__(self):
+        """Initialize the research components."""
+        self.query_generator = SearchQueryGenerator()
+        self.brave_client = BraveSearchClient()
+        self.analyzer = ResearchAnalyzer()
+    
+    async def conduct_research(self, idea_summary: str) -> dict:
+        """
+        Conduct comprehensive research on a startup idea.
+        
+        Args:
+            idea_summary: Summary of the startup idea
+            
+        Returns:
+            Dictionary containing all research data and analysis
+        """
+        research_data = {
+            "idea_summary": idea_summary,
+            "search_queries": [],
+            "web_results": [],
+            "total_pages_analyzed": 0,
+            "analysis": ""
+        }
+        
+        print("🔍 Step 1: Generating strategic search queries...")
+        
+        # Generate search queries
+        try:
+            queries = await self.query_generator.generate_queries(idea_summary)
+            research_data["search_queries"] = queries
+            print(f"✅ Generated {len(queries)} search queries")
+            
+            for i, query in enumerate(queries, 1):
+                print(f"  {i}. {query}")
+        
+        except Exception as e:
+            print(f"❌ Failed to generate queries: {e}")
+            return research_data
+        
+        print(f"\n🌐 Step 2: Executing web searches for each query...")
+        
+        # Execute searches for each query
+        for i, query in enumerate(queries, 1):
+            print(f"\n🔍 Searching [{i}/{len(queries)}]: {query[:60]}...")
+            
+            try:
+                search_response = await self.brave_client.search(query, count=10)
+                web_results = self.brave_client.extract_web_results(search_response)
+                
+                query_data = {
+                    "query": query,
+                    "results_count": len(web_results),
+                    "results": web_results
+                }
+                
+                research_data["web_results"].append(query_data)
+                research_data["total_pages_analyzed"] += len(web_results)
+                
+                print(f"  ✅ Found {len(web_results)} results")
+                
+                
+            except Exception as e:
+                print(f"  ❌ Search failed: {e}")
+                # Continue with other queries even if one fails
+                continue
+        
+        print(f"\n📊 Step 3: Analyzing collected data...")
+        print(f"  📄 Total pages analyzed: {research_data['total_pages_analyzed']}")
+        
+        # Generate comprehensive analysis using dedicated analyzer
+        try:
+            analysis = await self.analyzer.analyze_research(idea_summary, research_data)
+            research_data["analysis"] = analysis
+            print(f"  ✅ Investment analysis completed")
+            
+        except Exception as e:
+            print(f"  ❌ Analysis failed: {e}")
+        
+        return research_data
+
 
 # --- FastAPI Application ---
 app = FastAPI(
@@ -105,6 +192,46 @@ async def analyze_pitch(
     else:
         parallel_results = []
         print("No tasks to run.")
+    
+    # --- AGENTIC SEARCH INTEGRATION ---
+    # Combine all results into a comprehensive summary for agentic search
+    agentic_search_result = None
+    if parallel_results:
+        print("\n🔍 Step 4: Conducting agentic market research based on combined analysis...")
+        
+        # Create a combined summary from all processing results
+        combined_summary = "STARTUP PITCH ANALYSIS SUMMARY:\n\n"
+        
+        result_index = 0
+        
+        if final_video_file and hasattr(final_video_file, 'size') and final_video_file.size and final_video_file.size > 0:
+            if result_index < len(parallel_results):
+                combined_summary += f"VIDEO ANALYSIS:\n{parallel_results[result_index]}\n\n"
+                result_index += 1
+        
+        if final_pdf_document and final_pdf_document.filename:
+            if result_index < len(parallel_results):
+                combined_summary += f"PDF DOCUMENT ANALYSIS:\n{parallel_results[result_index]}\n\n"
+                result_index += 1
+        
+        if source_url:
+            if result_index < len(parallel_results):
+                combined_summary += f"GITHUB REPOSITORY ANALYSIS:\n{parallel_results[result_index]}\n\n"
+                result_index += 1
+        
+        if company_url:
+            if result_index < len(parallel_results):
+                combined_summary += f"COMPANY WEBSITE ANALYSIS:\n{parallel_results[result_index]}\n\n"
+                result_index += 1
+        
+        # Conduct agentic search research
+        try:
+            researcher = StartupResearcher()
+            agentic_search_result = await researcher.conduct_research(combined_summary)
+            print("✅ Agentic market research completed.")
+        except Exception as e:
+            print(f"❌ Agentic search failed: {e}")
+            agentic_search_result = {"error": f"Agentic search failed: {str(e)}"}
 
     # --- Print Final Results to Console ---
     print("\n" + "="*80)
@@ -119,6 +246,19 @@ async def analyze_pitch(
             print(result)
     else:
         print("No results to display.")
+    
+    # Print agentic search results
+    if agentic_search_result:
+        print("\n" + "-"*80)
+        print("🔍 AGENTIC MARKET RESEARCH RESULTS")
+        print("-" * 80)
+        if "analysis" in agentic_search_result and agentic_search_result["analysis"]:
+            print(agentic_search_result["analysis"])
+        else:
+            print("Market research data collected but analysis not available.")
+            print(f"Search queries executed: {len(agentic_search_result.get('search_queries', []))}")
+            print(f"Total pages analyzed: {agentic_search_result.get('total_pages_analyzed', 0)}")
+    
     print("="*80)
 
     # Create structured response with module identification
@@ -173,6 +313,18 @@ async def analyze_pitch(
                 "result": parallel_results[result_index]
             }
             result_index += 1
+    
+    # Add agentic search results to structured response
+    if agentic_search_result:
+        structured_results["modules"]["market_research"] = {
+            "module_name": "Agentic Market Research",
+            "input_summary": "Combined analysis from all processed modules",
+            "status": "completed" if "error" not in agentic_search_result else "failed",
+            "search_queries": agentic_search_result.get("search_queries", []),
+            "total_pages_analyzed": agentic_search_result.get("total_pages_analyzed", 0),
+            "analysis": agentic_search_result.get("analysis", ""),
+            "error": agentic_search_result.get("error", None)
+        }
 
     return {
         "message": "Pitch assets received and processed successfully.",
