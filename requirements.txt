@@ -1,0 +1,30 @@
+opencv-python
+git+https://github.com/openai/whisper.git
+python-dotenv
+requests
+numba>=0.59.0
+llvmlite>=0.42.0
+
+# For FastAPI server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# For in-memory audio processing
+pydub
+soundfile
+
+# For GitHub repository analysis
+aiohttp
+aiofiles
+
+# For agentic search functionality
+llama-api-client
+httpx
+
+# For PDF processing pipeline
+PyMuPDF
+beautifulsoup4
+Pillow 
+pdfplumber
+pdfminer.six

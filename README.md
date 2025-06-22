@@ -39,7 +39,10 @@ Create a `.env` file in the project root:
 ```
 OPENAI_API_KEY=your_openai_api_key
 LLAMA_API_KEY=your_llama_api_key
+BRAVE_API_KEY=your_brave_search_api_key
 ```
+
+**Note**: The BRAVE_API_KEY is required for the agentic search functionality that performs market research. You can get a free API key from [Brave Search API](https://api.search.brave.com/).
 
 ### Usage
 
