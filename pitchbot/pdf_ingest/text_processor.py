@@ -158,6 +158,27 @@ class TextProcessor:
         # Refined prompt for comprehensive analysis of text and images
         prompt = """You are an expert business analyst. Given the following PDF content, extract as many actionable business key points as possible, including insights from both text and images (provided as base64-encoded JPEGs).
 
+FIRST, identify the company's domain/industry and provide a categorization:
+
+**COMPANY DOMAIN & CATEGORIZATION:**
+- Analyze the content to determine what industry/domain this company operates in
+- Categorize the company into one of these broad categories:
+  * Technology (SaaS, AI/ML, FinTech, HealthTech, EdTech, etc.)
+  * E-commerce & Retail
+  * Healthcare & Biotech
+  * Financial Services
+  * Manufacturing & Industrial
+  * Media & Entertainment
+  * Real Estate & Construction
+  * Transportation & Logistics
+  * Energy & Utilities
+  * Education & Training
+  * Food & Beverage
+  * Fashion & Beauty
+  * Gaming & Entertainment
+  * Social Impact & Non-profit
+  * Other (specify)
+
 For images, analyze and describe any charts, graphs, tables, UI/UX elements, or visual data. If the image contains text, extract and summarize it. If the image is a graph or chart, describe the axes, trends, and any notable data points.
 
 Focus especially on these critical business areas:
@@ -218,7 +239,11 @@ Focus especially on these critical business areas:
 
 Please provide specific, actionable insights with concrete details, numbers, and examples from each category. For visual content, describe what you see and extract any data, metrics, or insights shown in charts, graphs, or images.
 
-Format your response as a structured list with clear categorization. Use bullet points or numbered lists for each category."""
+Format your response as a structured list with clear categorization. Use bullet points or numbered lists for each category.
+
+Start your response with:
+**DOMAIN:** [specific industry/domain]
+**CATEGORY:** [one of the categories listed above]"""
 
         try:
             # Prepare content for API call
@@ -247,10 +272,27 @@ Format your response as a structured list with clear categorization. Use bullet 
             # Parse the response and organize by categories
             points = []
             current_category = "General"
+            domain_info = "Unknown"
+            category_info = "Unknown"
             
-            for line in response.split('\n'):
+            # Extract domain and category information from the beginning of the response
+            lines = response.split('\n')
+            for line in lines:
                 line = line.strip()
-                if not line:
+                if line.startswith('**DOMAIN:**'):
+                    domain_info = line.replace('**DOMAIN:**', '').strip()
+                elif line.startswith('**CATEGORY:**'):
+                    category_info = line.replace('**CATEGORY:**', '').strip()
+                elif line and not line.startswith('**'):  # Stop at first non-header line
+                    break
+            
+            # Add domain and category as the first points
+            points.append(f"[COMPANY INFO] Domain: {domain_info}")
+            points.append(f"[COMPANY INFO] Category: {category_info}")
+            
+            for line in lines:
+                line = line.strip()
+                if not line or line.startswith('**DOMAIN:**') or line.startswith('**CATEGORY:**'):
                     continue
                     
                 # Check for category headers
@@ -274,9 +316,9 @@ Format your response as a structured list with clear categorization. Use bullet 
                 elif line and len(line) > 20:  # Likely a key point even without bullet
                     points.append(f"[{current_category}] {line}")
             
-            # If no structured points found, return the raw response
-            if not points:
-                return [response.strip()]
+            # If no structured points found, return the raw response with domain/category
+            if len(points) <= 2:  # Only domain and category info
+                points.append(f"[ANALYSIS] {response.strip()}")
             
             return points
             
@@ -301,6 +343,27 @@ Format your response as a structured list with clear categorization. Use bullet 
         # JSON-structured prompt
         prompt = """You are an expert business analyst. Analyze the following PDF content and extract key business insights from both text and images.
 
+FIRST, identify the company's domain/industry and provide a categorization:
+
+**COMPANY DOMAIN & CATEGORIZATION:**
+- Analyze the content to determine what industry/domain this company operates in
+- Categorize the company into one of these broad categories:
+  * Technology (SaaS, AI/ML, FinTech, HealthTech, EdTech, etc.)
+  * E-commerce & Retail
+  * Healthcare & Biotech
+  * Financial Services
+  * Manufacturing & Industrial
+  * Media & Entertainment
+  * Real Estate & Construction
+  * Transportation & Logistics
+  * Energy & Utilities
+  * Education & Training
+  * Food & Beverage
+  * Fashion & Beauty
+  * Gaming & Entertainment
+  * Social Impact & Non-profit
+  * Other (specify)
+
 For images, carefully analyze and extract:
 1. Any text content visible in the images (headlines, labels, numbers, descriptions)
 2. Charts and graphs - describe the data, trends, axes, and key metrics shown
@@ -319,6 +382,8 @@ When analyzing images, be specific about:
 
 Return your analysis as a valid JSON object with the following structure:
 {
+  "domain": "specific industry/domain",
+  "category": "one of the categories listed above",
   "product_market_fit": ["key point 1", "key point 2", ...],
   "visual_content": ["key point 1", "key point 2", ...],
   "monetization": ["key point 1", "key point 2", ...],
@@ -392,11 +457,20 @@ Ensure the response is valid JSON with no additional text before or after."""
                     
                     # Convert to standard format
                     organized_points = {}
+                    
+                    # Handle domain and category fields
+                    if "domain" in result:
+                        organized_points["Domain"] = [result["domain"]]
+                    if "category" in result:
+                        organized_points["Category"] = [result["category"]]
+                    
+                    # Handle other categories
                     for category, points in result.items():
-                        if isinstance(points, list):
-                            organized_points[category.replace('_', ' ').title()] = points
-                        else:
-                            organized_points[category.replace('_', ' ').title()] = [str(points)]
+                        if category not in ["domain", "category"]:  # Skip domain and category as they're handled above
+                            if isinstance(points, list):
+                                organized_points[category.replace('_', ' ').title()] = points
+                            else:
+                                organized_points[category.replace('_', ' ').title()] = [str(points)]
                     
                     logger.info(f"Successfully parsed JSON response with {len(organized_points)} categories")
                     return organized_points
@@ -437,6 +511,27 @@ Ensure the response is valid JSON with no additional text before or after."""
         # Simplified prompt for text-only analysis
         prompt = """You are an expert business analyst. Extract key business insights from the following text.
 
+FIRST, identify the company's domain/industry and provide a categorization:
+
+**COMPANY DOMAIN & CATEGORIZATION:**
+- Analyze the content to determine what industry/domain this company operates in
+- Categorize the company into one of these broad categories:
+  * Technology (SaaS, AI/ML, FinTech, HealthTech, EdTech, etc.)
+  * E-commerce & Retail
+  * Healthcare & Biotech
+  * Financial Services
+  * Manufacturing & Industrial
+  * Media & Entertainment
+  * Real Estate & Construction
+  * Transportation & Logistics
+  * Energy & Utilities
+  * Education & Training
+  * Food & Beverage
+  * Fashion & Beauty
+  * Gaming & Entertainment
+  * Social Impact & Non-profit
+  * Other (specify)
+
 Analyze the text for:
 - Product features, benefits, and value propositions
 - Target market and customer segments
@@ -449,6 +544,8 @@ Analyze the text for:
 
 Return your analysis as a valid JSON object with the following structure:
 {
+  "domain": "specific industry/domain",
+  "category": "one of the categories listed above",
   "product_market_fit": ["key point 1", "key point 2", ...],
   "monetization": ["key point 1", "key point 2", ...],
   "data_analytics": ["key point 1", "key point 2", ...],
