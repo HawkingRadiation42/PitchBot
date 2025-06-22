@@ -49,6 +49,9 @@ source .venv/bin/activate
 
 # Run the application
 python -m pitchbot
+
+# Process audio file (example)
+pitchbot process-audio /path/to/audio.opus
 ```
 
 ## Development
