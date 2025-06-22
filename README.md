@@ -61,27 +61,27 @@ from pitchbot import PDFIngest
 
 # Full processing (extraction + Llama processing)
 ingest = PDFIngest()
-result = ingest.process_pdf("document.pdf")
+result = ingest.process_pdf("public/example_document.pdf")
 print(result["summary"])        # Llama-generated summary
 print(result["key_points"])     # Extracted key points
 print(result["raw_text"])       # Original extracted text
 
 # Local extraction only
-raw_result = ingest.extract_only("document.pdf")
+raw_result = ingest.extract_only("public/example_document.pdf")
 print(raw_result["text"])       # Just the extracted text
 
 # Quick summary
-summary = ingest.summarize_pdf("document.pdf")
+summary = ingest.summarize_pdf("public/example_document.pdf")
 
 # Comprehensive insights
-insights = ingest.get_pdf_insights("document.pdf")
+insights = ingest.get_pdf_insights("public/example_document.pdf")
 
 # Answer specific questions
-questions = ["What is the main topic?", "What are the key findings?"]
-answers = ingest.answer_questions("document.pdf", questions)
+questions = ["What is the target market?", "What are the revenue projections?"]
+answers = ingest.answer_questions("public/example_document.pdf", questions)
 
 # Custom processing
-custom_result = ingest.process_custom("document.pdf", "Analyze this from a business perspective")
+custom_result = ingest.process_custom("public/example_document.pdf", "Analyze this from a business perspective")
 ```
 
 ### Features

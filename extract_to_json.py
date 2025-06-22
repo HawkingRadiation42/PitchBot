@@ -129,9 +129,9 @@ def main():
     """Main function to handle command line arguments."""
     if len(sys.argv) < 2:
         print("Usage: python extract_to_json.py <pdf_path> [output_json_path] [--no-images]")
-        print("Example: python extract_to_json.py document.pdf")
-        print("Example: python extract_to_json.py document.pdf output.json")
-        print("Example: python extract_to_json.py document.pdf output.json --no-images")
+        print("Example: python extract_to_json.py public/example_document.pdf")
+        print("Example: python extract_to_json.py public/example_document.pdf output.json")
+        print("Example: python extract_to_json.py public/example_document.pdf output.json --no-images")
         return
     
     pdf_path = sys.argv[1]
