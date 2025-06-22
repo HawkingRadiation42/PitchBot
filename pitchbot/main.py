@@ -14,6 +14,8 @@ import uvicorn
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+# Add LLAMA API client import
+from llama_api_client import AsyncLlamaAPIClient
 
 # Load environment variables from .env file in the root directory
 load_dotenv()
@@ -78,6 +80,110 @@ class StartupResearcher:
         }
         
         return research_data
+
+
+# --- LLAMA API Summarization Functions ---
+class ModuleSummarizer:
+    """Handles LLAMA API summarization for each module."""
+    
+    def __init__(self):
+        """Initialize the LLAMA API client for summarization."""
+        api_key = os.getenv("LLAMA_API_KEY")
+        if not api_key:
+            raise ValueError("LLAMA_API_KEY environment variable not set.")
+        
+        self.client = AsyncLlamaAPIClient(
+            api_key=api_key,
+        )
+        self.model = "Llama-4-Maverick-17B-128E-Instruct-FP8"
+    
+    async def summarize_module_result(self, module_name: str, module_result: str) -> str:
+        """
+        Summarize a module's analysis result using LLAMA API.
+        
+        Args:
+            module_name: Name of the module (e.g., "Video Analysis", "PDF Analysis")
+            module_result: The raw analysis result from the module
+            
+        Returns:
+            Summarized version of the module result
+        """
+        if not module_result or not module_result.strip():
+            return "No content available for summarization."
+        
+        prompt = f"""You are an expert startup pitch analyst. Please provide a concise, professional summary of the following {module_name} results.
+
+**Instructions:**
+- Extract the most important insights and findings
+- Highlight key strengths and potential concerns
+- Keep the summary focused and actionable
+- Use bullet points for clarity
+- Limit to 200-300 words
+
+**{module_name} Results to Summarize:**
+{module_result}
+
+**Summary:**"""
+
+        try:
+            response = await self.client.chat.completions.create(
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                model=self.model,
+                max_completion_tokens=500,
+                temperature=0.3
+            )
+            
+            summary = response.completion_message.content.text.strip()
+            return summary
+            
+        except Exception as e:
+            print(f"❌ LLAMA summarization failed for {module_name}: {str(e)}")
+            return f"Summarization failed: {str(e)}"
+
+
+# Initialize the module summarizer
+summarizer = None
+
+async def get_summarizer():
+    """Get or create the module summarizer instance."""
+    global summarizer
+    if summarizer is None:
+        try:
+            summarizer = ModuleSummarizer()
+        except Exception as e:
+            print(f"⚠️ Could not initialize LLAMA summarizer: {e}")
+            return None
+    return summarizer
+
+
+async def add_module_summary(module_name: str, module_result: str) -> Optional[str]:
+    """
+    Add LLAMA API summary to a module result.
+    
+    Args:
+        module_name: Name of the module for summarization
+        module_result: The module's analysis result
+        
+    Returns:
+        Summary string or None if summarization fails
+    """
+    try:
+        print(f"🤖 Generating LLAMA summary for {module_name}...")
+        summarizer_instance = await get_summarizer()
+        
+        if summarizer_instance is None:
+            print(f"⚠️ Summarizer not available for {module_name}")
+            return None
+            
+        summary = await summarizer_instance.summarize_module_result(module_name, module_result)
+        print(f"✅ {module_name} LLAMA summary completed!")
+        return summary
+        
+    except Exception as e:
+        print(f"❌ {module_name} LLAMA summarization failed: {str(e)}")
+        return None
 
 
 # --- Rubric Scoring Functions ---
@@ -491,7 +597,7 @@ async def analyze_pitch(
         "modules": {}
     }
     
-    # Map results to their respective modules with rubric scoring
+    # Map results to their respective modules with rubric scoring and LLAMA summarization
     result_index = 0
     
     if final_video_file and hasattr(final_video_file, 'size') and final_video_file.size and final_video_file.size > 0:
@@ -503,6 +609,11 @@ async def analyze_pitch(
                 "status": "completed",
                 "result": video_result
             }
+            
+            # Add LLAMA summarization for video analysis
+            video_summary = await add_module_summary("Video Analysis", video_result)
+            if video_summary:
+                structured_results["modules"]["video_analysis"]["llama_summary"] = video_summary
             
             # Add rubric scoring for video analysis
             video_rubric_scores = await add_rubric_scores(video_result, "Video Analysis")
@@ -520,6 +631,11 @@ async def analyze_pitch(
                 "result": pdf_result
             }
             
+            # Add LLAMA summarization for PDF analysis
+            pdf_summary = await add_module_summary("PDF Analysis", pdf_result)
+            if pdf_summary:
+                structured_results["modules"]["pdf_analysis"]["llama_summary"] = pdf_summary
+            
             # Add rubric scoring for PDF analysis
             pdf_rubric_scores = await add_rubric_scores(pdf_result, "PDF Analysis")
             structured_results["modules"]["pdf_analysis"]["rubric_scores"] = pdf_rubric_scores
@@ -535,6 +651,11 @@ async def analyze_pitch(
                 "status": "completed", 
                 "result": github_result
             }
+            
+            # Add LLAMA summarization for GitHub analysis
+            github_summary = await add_module_summary("GitHub Analysis", github_result)
+            if github_summary:
+                structured_results["modules"]["github_analysis"]["llama_summary"] = github_summary
             
             # Add rubric scoring for GitHub analysis
             github_rubric_scores = await add_rubric_scores(github_result, "GitHub Analysis")
@@ -557,6 +678,11 @@ async def analyze_pitch(
                 "domain": extracted_domain
             }
             
+            # Add LLAMA summarization for company analysis
+            company_summary = await add_module_summary("Company Analysis", company_result)
+            if company_summary:
+                structured_results["modules"]["company_analysis"]["llama_summary"] = company_summary
+            
             # Add rubric scoring for company analysis
             company_rubric_scores = await add_rubric_scores(company_result, "Company Analysis")
             structured_results["modules"]["company_analysis"]["rubric_scores"] = company_rubric_scores
@@ -575,6 +701,12 @@ async def analyze_pitch(
             "analysis": market_research_analysis,
             "error": agentic_search_result.get("error", None)
         }
+        
+        # Add LLAMA summarization for market research (only if successfully completed)
+        if "error" not in agentic_search_result and market_research_analysis:
+            market_research_summary = await add_module_summary("Market Research", market_research_analysis)
+            if market_research_summary:
+                structured_results["modules"]["market_research"]["llama_summary"] = market_research_summary
         
         # Add rubric scoring for market research (only if successfully completed)
         if "error" not in agentic_search_result and market_research_analysis:
