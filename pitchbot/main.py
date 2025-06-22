@@ -111,20 +111,19 @@ class ModuleSummarizer:
         if not module_result or not module_result.strip():
             return "No content available for summarization."
         
-        prompt = f"""You are an expert startup pitch analyst. Please provide a concise, professional summary of the following {module_name} results.
+        prompt = f"""You are an expert startup analyst. Summarize the following {module_name} results from an investor’s perspective.
 
 **Instructions:**
-- Extract the most important insights and findings
-- Highlight key strengths and potential concerns
-- Keep the summary focused and actionable
+- Focus on the most important insights and takeaways
+- Clearly highlight key strengths and red flags
+- Be concise, objective, and investment-focused
 - Use bullet points for clarity
 - Limit to 300 words
-- Write the summary directly do not say here is the summary or anything like that
+- Do not include any headings like “Summary” or “Here’s the summary”
 
 **{module_name} Results to Summarize:**
 {module_result}
-
-**Summary:**"""
+"""
 
         try:
             response = await self.client.chat.completions.create(
