@@ -196,7 +196,7 @@ class RobustWebsiteScraper:
     def __init__(
         self,
         base_url: str,
-        max_depth: int = 5,
+        max_depth: int = 10,
         max_pages: int = 1000,
         delay: float = 1.0,
         concurrent_requests: int = 5,
