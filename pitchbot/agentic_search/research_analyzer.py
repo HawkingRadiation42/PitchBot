@@ -45,7 +45,7 @@ class ResearchAnalyzer:
             for i, result in enumerate(results[:10], 1):  # Top 10 per query
                 web_data_summary.append(f"\n{i}. {result['title']}")
                 web_data_summary.append(f"   Description: {result['description']}")
-                
+                print(result['description'])
                 # Include extra_snippets as "content" if available
                 # if result.get('extra_snippets'):
                 #     content = '; '.join(result['extra_snippets'][:3])  # Use up to 3 snippets as content

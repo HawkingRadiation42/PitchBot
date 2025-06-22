@@ -21,89 +21,50 @@ from .url_processor import process_url
 from .company_url_processor import process_company_url
 
 # Import agentic search components
-from .agentic_search import SearchQueryGenerator, BraveSearchClient, ResearchAnalyzer
+from .agentic_search.enhanced_research_pipeline import EnhancedResearchPipeline
 
 
 class StartupResearcher:
-    """Comprehensive startup research using query generation and web search."""
+    """Enhanced startup research with multi-level reference extraction."""
     
-    def __init__(self):
-        """Initialize the research components."""
-        self.query_generator = SearchQueryGenerator()
-        self.brave_client = BraveSearchClient()
-        self.analyzer = ResearchAnalyzer()
+    def __init__(self, enable_reference_extraction: bool = True, max_depth: int = 2, max_pages_per_level: int = 5):
+        """Initialize the enhanced research pipeline."""
+        self.pipeline = EnhancedResearchPipeline(
+            max_depth=max_depth,
+            max_pages_per_level=max_pages_per_level
+        )
+        self.enable_reference_extraction = enable_reference_extraction
     
     async def conduct_research(self, idea_summary: str) -> dict:
         """
-        Conduct comprehensive research on a startup idea.
+        Conduct comprehensive research using enhanced pipeline.
         
         Args:
             idea_summary: Summary of the startup idea
             
         Returns:
-            Dictionary containing all research data and analysis
+            Dictionary containing all research data and analysis in a compatible format
         """
+        print("🔍 Starting Enhanced Agentic Market Research...")
+        
+        # Run the enhanced research pipeline
+        results = await self.pipeline.run_comprehensive_research(
+            idea_summary=idea_summary,
+            enable_reference_extraction=self.enable_reference_extraction,
+            max_search_results=10
+        )
+        
+        # Convert enhanced results to the format expected by your FastAPI endpoint
         research_data = {
-            "idea_summary": idea_summary,
-            "search_queries": [],
-            "web_results": [],
-            "total_pages_analyzed": 0,
-            "analysis": ""
+            "idea_summary": results["idea_summary"],
+            "search_queries": results["search_queries"],
+            "web_results": results["search_results"]["web_results"],
+            "total_pages_analyzed": results["pipeline_summary"]["total_pages_analyzed"],
+            "analysis": results["analysis"],
+            # Additional enhanced data
+            "enhanced_references": results.get("enhanced_references"),
+            "pipeline_summary": results["pipeline_summary"]
         }
-        
-        print("🔍 Step 1: Generating strategic search queries...")
-        
-        # Generate search queries
-        try:
-            queries = await self.query_generator.generate_queries(idea_summary)
-            research_data["search_queries"] = queries
-            print(f"✅ Generated {len(queries)} search queries")
-            
-            for i, query in enumerate(queries, 1):
-                print(f"  {i}. {query}")
-        
-        except Exception as e:
-            print(f"❌ Failed to generate queries: {e}")
-            return research_data
-        
-        print(f"\n🌐 Step 2: Executing web searches for each query...")
-        
-        # Execute searches for each query
-        for i, query in enumerate(queries, 1):
-            print(f"\n🔍 Searching [{i}/{len(queries)}]: {query[:60]}...")
-            
-            try:
-                search_response = await self.brave_client.search(query, count=10)
-                web_results = self.brave_client.extract_web_results(search_response)
-                
-                query_data = {
-                    "query": query,
-                    "results_count": len(web_results),
-                    "results": web_results
-                }
-                
-                research_data["web_results"].append(query_data)
-                research_data["total_pages_analyzed"] += len(web_results)
-                
-                print(f"  ✅ Found {len(web_results)} results")
-                
-                
-            except Exception as e:
-                print(f"  ❌ Search failed: {e}")
-                # Continue with other queries even if one fails
-                continue
-        
-        print(f"\n📊 Step 3: Analyzing collected data...")
-        print(f"  📄 Total pages analyzed: {research_data['total_pages_analyzed']}")
-        
-        # Generate comprehensive analysis using dedicated analyzer
-        try:
-            analysis = await self.analyzer.analyze_research(idea_summary, research_data)
-            research_data["analysis"] = analysis
-            print(f"  ✅ Investment analysis completed")
-            
-        except Exception as e:
-            print(f"  ❌ Analysis failed: {e}")
         
         return research_data
 
