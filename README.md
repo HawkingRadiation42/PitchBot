@@ -1,62 +1,32 @@
-# PitchBot
+# PitchBot 🤖📊
 
-AI-powered pitch assistant for creating compelling presentations and proposals.
+**An autonomous AI agent that analyzes startup pitches and generates comprehensive investment research reports.**
 
-## Setup
+Upload a pitch deck, video, audio, or code—PitchBot extracts key attributes, then deploys an agentic research workflow to synthesize market analysis from 1,000+ web sources. What used to take 5+ hours now takes under 10 minutes.
 
-### Prerequisites
-- Python 3.12+
-- [uv](https://docs.astral.sh/uv/) (fast Python package manager)
+## What It Does
 
-### Installation
+1. **Multi-modal ingestion** – Accepts PDFs, videos, audio, and code
+2. **Attribute extraction** – Uses Llama-4 to identify key startup attributes (market, competitors, team, traction)
+3. **Autonomous research** – GPT-4 + Brave Search API agent crawls the web for relevant market data
+4. **Report generation** – Synthesizes everything into a structured investment analysis
 
-1. **Install uv** (if not already installed):
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
+## Tech Stack
 
-2. **Clone and setup the project**:
-   ```bash
-   git clone <your-repo-url>
-   cd PitchBot
-   ```
+- **LLMs:** Llama-4 (analysis), GPT-4o (research agent), Whisper (transcription)
+- **Search:** Brave Search API
+- **Backend:** FastAPI, Python
+- **Frontend:** React.js
 
-3. **Create virtual environment and install dependencies**:
-   ```bash
-   uv venv --python 3.12
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   uv pip install -e .
-   ```
-
-4. **Install development dependencies** (optional):
-   ```bash
-   uv pip install -e ".[dev]"
-   ```
-
-### Environment Variables
-
-Create a `.env` file in the project root:
+## Architecture
 ```
-OPENAI_API_KEY=your_openai_api_key
-LLAMA_API_KEY=your_llama_api_key
-BRAVE_API_KEY=your_brave_search_api_key
+┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
+│  Input      │ ──▶ │  Extraction  │ ──▶ │  Research Agent │
+│  (PDF/Video)│     │  (Llama-4)   │     │  (GPT-4 + Brave)│
+└─────────────┘     └──────────────┘     └────────┬────────┘
+                                                  │
+                                                  ▼
+                                         ┌───────────────┐
+                                         │ Final Report  │
+                                         └───────────────┘
 ```
-
-**Note**: The BRAVE_API_KEY is required for the agentic search functionality that performs market research. You can get a free API key from [Brave Search API](https://api.search.brave.com/).
-
-### Usage
-
-```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Run the application
-python -m pitchbot
-```
-
-## Development
-
-- **Code formatting**: `black .`
-- **Import sorting**: `isort .`
-- **Type checking**: `mypy .`
-- **Testing**: `pytest`
